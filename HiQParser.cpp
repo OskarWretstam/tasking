@@ -1,6 +1,7 @@
 #include "HiQParser.h"
 #include <iostream> // todo remove
 #include <vector>
+#include <sstream>
 
 int HiQParser::open(std::string filename)
 {
@@ -31,27 +32,36 @@ int HiQParser::Next_cmd(){
     return 1;
   }
 
+  // Read line from file
   std::string intermediate;
+  std::getline(input_file, intermediate);
 
-  std::getline(input_file, intermediate, ' ');
-  std::cout << "First token " << intermediate << std::endl;
+  // Create a stream from the read line and use it to fill a vector of string tokens
+  std::stringstream line(intermediate);
+  std::vector <std::string> tokens;
 
-  if(intermediate.compare("PLACE")){
-    cmd = PLACE;
-  } else if(intermediate.compare("MOVE")){
-    cmd = MOVE;
-  } else if(intermediate.compare("LEFT")){
-    cmd = LEFT;
-  } else if(intermediate.compare("RIGHT")){
-    cmd = RIGHT;
-  } else if(intermediate.compare("REPORT")){
-    cmd = REPORT;
-  } else {
-    std::cout << "Invalid command read " << intermediate << std::endl;
-    return 1;
+  std::getline(line, intermediate, ' ');
+  tokens.push_back(intermediate);
+
+  while(getline(line, intermediate, ',')){
+    tokens.push_back(intermediate);
   }
 
-  return 0;
+  bool parse_ok = false;
+  if((tokens.front().compare("PLACE") == 0) && (tokens.size() == 4)){
+    parse_ok = true;
+
+    // cmd = PLACE;
+    // coordinate.first =
+    //   coordinate.second =
+
+  }
+
+  if(tokens.size() == 1){
+
+  }
+
+  return parse_ok;
 }
 
 HiQParser::Cmd_Type_e HiQParser::Get_cmd(){
