@@ -61,22 +61,20 @@ int HiQRobot::move(){
 // Place the robot at given x,y coordinates in dir facing direction
 //
 // Returns 1 on failed placement, where given coordinates are outside of this world, 0 otherwise
-int HiQRobot::place(int x, int y, Orientation_e orientation)
+int HiQRobot::place(std::pair<int,int> pos, Orientation_e orientation)
 {
-  if((x < 0) || (x > limits.first)){
+  if((pos.first < 0) || (pos.first > limits.first)){
     return 1;
   }
 
-  if((y < 0) || (y > limits.second)){
+  if((pos.second < 0) || (pos.second > limits.second)){
     return 1;
   }
 
-  // todo potentially sanity check direction, but i guess it makes sense to do that in parsing?
-
-  this->position.first = x;
-  this->position.second = y;
   this->orientation = orientation;
-  this->placed = true;
+  position.first = pos.first;
+  position.second = pos.second;
+  placed = true;
 
   return 0;
 }
@@ -94,6 +92,12 @@ void HiQRobot::rotate(Direction_e direction){
   }
 }
 
+// Print status
+//
 void HiQRobot::print(){
-  std::cout << "Robot position is: <" << this->position.first << ", " << this->position.second << ">" << std::endl;
+  if(placed){
+    std::cout << "Robot position is: <" << this->position.first << ", " << this->position.second << ">" << std::endl;
+  } else {
+    std::cout << "Robot is not placed yet.." << std::endl;
+  }
 }
