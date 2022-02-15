@@ -4,79 +4,72 @@
 #include "HiQParser.h"
 #include "HiQTests.h"
 
-enum Run_Mode_e {RUN, TEST};
-
 int main(int argc, char* argv[]){
 
-  std::string filename;
-  Run_Mode_e run_mode;
+  std::string inputParam;
 
-  // Input arguments, if given try to run that as a file
-  if(argc < 2){
-    run_mode = TEST;
-    filename.assign("N/A");
-    std::cout << "Running testcases.." << std::endl;
-  } else {
-    run_mode = RUN;
-    filename.assign(argv[1]);
-    std::cout << "Running application with input file: " << filename << std::endl;
+  // Input arguments, could be filename to run or test
+  if(argc == 2){
+    inputParam.assign(argv[1]);
+    std::cout << "Running application with input: " << inputParam << std::endl;
+  }
+  else{
+    std::cout << "Please provide argument filepath|test" << std::endl;
   }
 
+  // Potentially Run unit tests
+  if(inputParam.compare("test") == 0){
+    std::cout << "Running test suite ... ";
+    runTests();
 
-  if(run_mode == RUN){
+    return 0;
+  }
 
-    // Setup robot
-    std::pair<int,int> limits = {5, 5};
-    HiQRobot r = HiQRobot(limits);
+  // Setup robot, note that limits are 0-indices
+  HiQRobot r = HiQRobot(4, 4);
 
-    // Setup parser
-    HiQParser p = HiQParser();
-    if(p.open(filename) == 1){
-      std::cout << "Failed to open file: " << filename << ", exiting" << std::endl;
-      return 1;
-    }
-
-    // Start execution
-    while(p.Next_cmd() == 0){
-      switch(p.Get_cmd()){
-      case HiQParser::PLACE:
-	r.place(p.Get_Coord(), HiQRobot::NORTH);
-	break;
-
-      case HiQParser::MOVE:
-	r.move();
-	break;
-
-      case HiQParser::LEFT:
-	r.rotate(HiQRobot::LEFT);
-	break;
-
-      case HiQParser::RIGHT:
-	r.rotate(HiQRobot::RIGHT);
-	break;
-
-      case HiQParser::REPORT:
-	r.print();
-	break;
-
-      case HiQParser::INVALID:
-	std::cout << "Invalid command from parser.." << std::endl;
-	return 1;
-	break;
-      }
-    }
-
-
-  } else if(run_mode == TEST) {
-
-    // todo
-    std::cout << "TODO" << std::endl;
-    // HiQTests::test_robot_placement();
-
-  } else {
-    std::cout << "Internal error, invalid run_mode: " << run_mode << std::endl;
+  // Setup parser for input file
+  HiQParser p = HiQParser();
+  if(p.open(inputParam) == 1){
+    std::cout << "Failed to open file: " << inputParam << ", exiting" << std::endl;
     return 1;
   }
+
+  // todo
+  std::pair<int,int> coord;
+  // Start execution
+  while(p.Next_cmd() == 0){
+    switch(p.Get_cmd()){
+    case HiQParser::PLACE:
+      coord = p.Get_Coord();
+      r.place(coord.first, coord.second, p.Get_Orientation());
+      break;
+
+    case HiQParser::MOVE:
+      r.move();
+      break;
+
+    case HiQParser::LEFT:
+      r.rotate(HiQRobot::LEFT);
+      break;
+
+    case HiQParser::RIGHT:
+      r.rotate(HiQRobot::RIGHT);
+      break;
+
+    case HiQParser::REPORT:
+      r.print();
+      break;
+
+    case HiQParser::INVALID:
+      std::cout << "Invalid command from parser.." << std::endl;
+      return 1;
+      break;
+    }
+  }
+
+  // Free resource
+  p.close();
 
   return 0;
 }

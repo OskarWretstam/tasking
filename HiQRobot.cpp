@@ -1,79 +1,79 @@
 #include "HiQRobot.h"
 #include <iostream>
 
-// Constructor takes the world limits as a parameter which are required when placing a robot
+// Constructor takes the world limits as a parameter
 //
-HiQRobot::HiQRobot(std::pair<int, int> limits){
-  position.first = -1;
-  position.second = -1;
+HiQRobot::HiQRobot(int maxX, int maxY){
+  position[0] = -1;
+  position[1] = -1;
   orientation = NORTH;
   placed = false;
 
-  this->limits.first = limits.first;
-  this->limits.second = limits.second;
+  this->limits[0] = maxX;
+  this->limits[1] = maxY;
 }
 
 // Move one step forward in current facing direction
 //
 // Returns 1 on disallowed movement which would cause the robot to fall
-int HiQRobot::move(){
-  if(placed){
-    switch(orientation){
-    case NORTH:
-      if(position.second < limits.second){
-	position.second += 1;
-	return 0;
-      }
-      break;
-
-    case SOUTH:
-      if(position.second > 0){
-	position.second -= 1;
-	return 0;
-      }
-      break;
-
-    case EAST:
-      if(position.first < limits.first){
-	position.first += 1;
-	return 0;
-      }
-      break;
-
-    case WEST:
-      if(position.first > 0){
-	position.first -= 1;
-	return 0;
-      }
-      break;
-
-    default:
-      std::cout << "Error> Invalid orientation: " << orientation << "in HiQRobot::move()" << std::endl;
-      break;
-    }
+bool HiQRobot::move(){
+  if(!placed){
+    return true;
   }
 
-  std::cout << "Warning: Disregard invalid move command" << std::endl;
+  switch(orientation){
+  case NORTH:
+    if(position[1] < limits[1]){
+      position[1] += 1;
+      return false;
+    }
+    break;
 
-  return 1;
+  case SOUTH:
+    if(position[1] > 0){
+      position[1] -= 1;
+      return false;
+    }
+    break;
+
+  case EAST:
+    if(position[0] < limits[0]){
+      position[0] += 1;
+      return false;
+    }
+    break;
+
+  case WEST:
+    if(position[0] > 0){
+      position[0] -= 1;
+      return false;
+    }
+    break;
+
+  default:
+    std::cout << "Error> Invalid orientation: " << orientation << "in HiQRobot::move()" << std::endl;
+    return true;
+  }
+
+  return true;
 }
 
 // Place the robot at given x,y coordinates in dir facing direction
 //
 // Returns 1 on failed placement, where given coordinates are outside of this world, 0 otherwise
-int HiQRobot::place(std::pair<int,int> pos, Orientation_e orientation)
+bool HiQRobot::place(int x, int y, Orientation_e orientation)
 {
-  if((pos.first < 0) || (pos.first > limits.first)){
-    return 1;
+  if((x < 0) || (x > limits[0])){
+    return true;
   }
 
-  if((pos.second < 0) || (pos.second > limits.second)){
-    return 1;
+  if((y < 0) || (y > limits[1])){
+    return true;
   }
 
   this->orientation = orientation;
-  position.first = pos.first;
-  position.second = pos.second;
+  position[0] = x;
+  position[1] = y;
   placed = true;
 
   return 0;
@@ -81,23 +81,65 @@ int HiQRobot::place(std::pair<int,int> pos, Orientation_e orientation)
 
 // Rotate robot left of right 90 degrees relative to current facing direction
 //
-void HiQRobot::rotate(Direction_e direction){
-  if(placed){
-    orientation += direction;
-    orientation %= 360;
-
-    if(orientation < 0){
-      orientation += 360;
-    }
+bool HiQRobot::rotate(Direction_e direction){
+  if(!placed){
+    return true;
   }
+
+  orientation += direction;
+  orientation %= 360;
+
+  if(orientation < 0){
+    orientation += 360;
+  }
+
+  return false;
 }
 
 // Print status
 //
-void HiQRobot::print(){
-  if(placed){
-    std::cout << "Robot position is: <" << this->position.first << ", " << this->position.second << ">" << std::endl;
-  } else {
-    std::cout << "Robot is not placed yet.." << std::endl;
+bool HiQRobot::print(){
+  if(!placed){
+    return true;
   }
+
+  std::cout << "<" << this->position[0] << ", " << this->position[1] << ">,";
+  // todo
+  switch(orientation){
+  case NORTH:
+    std::cout << " NORTH" << std::endl;
+    break;
+
+  case SOUTH:
+    std::cout << " SOUTH" << std::endl;
+    break;
+
+  case WEST:
+    std::cout << " WEST" << std::endl;
+    break;
+
+  case EAST:
+    std::cout << " EAST" << std::endl;
+    break;
+  }
+
+  return false;
+}
+
+// Get placed status
+//
+bool HiQRobot::isPlaced(){
+  return placed;
+}
+
+// Get orientation
+//
+int HiQRobot::getOrientation(){
+  return orientation;
+}
+
+// Get position tuple
+//
+std::tuple<int,int> HiQRobot::getPosition(){
+  return {position[0], position[1]};
 }

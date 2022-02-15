@@ -43,25 +43,43 @@ int HiQParser::Next_cmd(){
   std::getline(line, intermediate, ' ');
   tokens.push_back(intermediate);
 
+  // Add potential additional parameters to string vector
   while(getline(line, intermediate, ',')){
     tokens.push_back(intermediate);
   }
 
-  bool parse_ok = false;
-  if((tokens.front().compare("PLACE") == 0) && (tokens.size() == 4)){
-    parse_ok = true;
-
-    // cmd = PLACE;
-    // coordinate.first =
-    //   coordinate.second =
-
+  // Check if command exists in our map
+  auto search_cmd = cmd_map.find(tokens.front());
+  if(search_cmd == cmd_map.end()){
+    return 1;
   }
 
-  if(tokens.size() == 1){
+  cmd = search_cmd->second;
 
+  if(cmd == PLACE){
+    // Place commands takes parameters, verify that we read them and assign
+    if(tokens.size() != 4){
+      return 1;
+    }
+
+    coordinate.first = stoi(tokens[1]);
+    coordinate.second = stoi(tokens[2]);
+
+    auto search_orient = orientation_map.find(tokens[3]);
+    if(search_orient == orientation_map.end()){
+      return 1;
+    }
+
+    orientation = search_orient->second;
+  }
+  else {
+    // The remaining commands comes without parameters, ergo no more tokens
+    if(tokens.size() != 1){
+      return 1;
+    }
   }
 
-  return parse_ok;
+  return 0;
 }
 
 HiQParser::Cmd_Type_e HiQParser::Get_cmd(){
@@ -70,4 +88,8 @@ HiQParser::Cmd_Type_e HiQParser::Get_cmd(){
 
 std::pair<int,int> HiQParser::Get_Coord(){
   return coordinate;
+}
+
+HiQRobot::Orientation_e HiQParser::Get_Orientation(){
+  return orientation;
 }

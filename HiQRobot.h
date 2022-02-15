@@ -2,6 +2,8 @@
 #define HIQROBOT_H
 
 #include <utility>
+#include <array>
+#include <tuple>
 
 class HiQRobot{
 
@@ -11,19 +13,21 @@ public:
   enum Orientation_e {INVALID = -1, NORTH = 0, EAST = 90, SOUTH = 180, WEST = 270};
 
   // Constuctor
-  HiQRobot(std::pair<int,int> limits);
+  explicit HiQRobot(int maxX, int maxY);
 
   // Public functions
-  void print();
+  bool print();
   bool isPlaced();
-  int place(std::pair<int,int> pos, Orientation_e orientation);
-  int move();
-  void rotate(Direction_e direction);
+  int getOrientation();
+  std::tuple<int,int> getPosition();
+  bool place(int x, int y, Orientation_e orientation);
+  bool move();
+  bool rotate(Direction_e direction);
 
 private:
 
-  std::pair<int, int> position = {-1, -1};
-  std::pair<int,int> limits = {-1, -1};
+  std::array<int, 2> position = {-1, -1};
+  std::array<int, 2> limits = {-1, -1};
   int orientation = INVALID;
   bool placed = false;
 
