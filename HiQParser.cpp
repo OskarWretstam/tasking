@@ -3,7 +3,7 @@
 #include <vector>
 #include <sstream>
 
-int HiQParser::open(std::string filename)
+bool HiQParser::open(std::string filename)
 {
   if(input_file.is_open()){
     input_file.close();
@@ -14,7 +14,7 @@ int HiQParser::open(std::string filename)
   return(!input_file.is_open());
 }
 
-int HiQParser::close()
+bool HiQParser::close()
 {
   if(input_file.is_open()){
     input_file.close();
@@ -23,7 +23,7 @@ int HiQParser::close()
   return(input_file.is_open());
 }
 
-int HiQParser::Next_cmd(){
+bool HiQParser::Next_cmd(){
   if(!input_file.is_open()){
     return 1;
   }

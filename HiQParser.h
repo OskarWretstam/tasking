@@ -14,9 +14,9 @@ public:
   enum Cmd_Type_e {INVALID, PLACE, MOVE, LEFT, RIGHT, REPORT};
 
   // Public function declarations
-  int open(std::string filename);
-  int close();
-  int Next_cmd();
+  bool open(std::string filename);
+  bool close();
+  bool Next_cmd();
   Cmd_Type_e Get_cmd();
   std::pair<int,int> Get_Coord();
   HiQRobot::Orientation_e Get_Orientation();

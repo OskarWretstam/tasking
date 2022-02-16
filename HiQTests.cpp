@@ -131,6 +131,10 @@ void testRobotNotPlaced(){
 // Test that we can parse a place command
 //
 void testParsePlace(){
+  // Setup
+  std::string filename("./test_files/place.txt");
+  HiQParser p = HiQParser();
+  assert(!p.open(filename));
 
 }
 
@@ -180,12 +184,9 @@ void runTests(){
 
   // Test parser
   testParsePlace();
-  testParsePlaceWOParams();
   testParseMove();
   testParseLeft();
   testParseRight();
   testParseReport();
   testParseInvalid();
-
-
 }
