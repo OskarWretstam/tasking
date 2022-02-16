@@ -21,6 +21,7 @@ int main(int argc, char* argv[]){
   if(inputParam.compare("test") == 0){
     std::cout << "Running test suite ... ";
     runTests();
+    std::cout << "Passed!" << std::endl;
 
     return 0;
   }
@@ -35,14 +36,19 @@ int main(int argc, char* argv[]){
     return 1;
   }
 
-  // todo
-  std::pair<int,int> coord;
-  // Start execution
-  while(p.Next_cmd() == 0){
-    switch(p.Get_cmd()){
+  // Run as long as the parser will parse
+  while(p.nextCmd() == 0){
+
+    // Get the command
+    HiQParser::cmdStruct_t cmdStruct = p.getCmd();
+    if(!cmdStruct.valid){
+      break;
+    }
+
+    // Perform som action
+    switch(cmdStruct.cmd){
     case HiQParser::PLACE:
-      coord = p.Get_Coord();
-      r.place(coord.first, coord.second, p.Get_Orientation());
+      r.place(cmdStruct.coordinate[0], cmdStruct.coordinate[1], cmdStruct.orientation);
       break;
 
     case HiQParser::MOVE:
@@ -58,7 +64,7 @@ int main(int argc, char* argv[]){
       break;
 
     case HiQParser::REPORT:
-      r.print();
+      std::cout << r.report() << std::endl;
       break;
 
     case HiQParser::INVALID:

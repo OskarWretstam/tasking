@@ -1,5 +1,4 @@
 #include "HiQRobot.h"
-#include <iostream>
 
 // Constructor takes the world limits as a parameter
 //
@@ -9,8 +8,8 @@ HiQRobot::HiQRobot(int maxX, int maxY){
   orientation = NORTH;
   placed = false;
 
-  this->limits[0] = maxX;
-  this->limits[1] = maxY;
+  limits[0] = maxX;
+  limits[1] = maxY;
 }
 
 // Move one step forward in current facing direction
@@ -51,7 +50,6 @@ bool HiQRobot::move(){
     break;
 
   default:
-    std::cout << "Error> Invalid orientation: " << orientation << "in HiQRobot::move()" << std::endl;
     return true;
   }
 
@@ -98,32 +96,32 @@ bool HiQRobot::rotate(Direction_e direction){
 
 // Print status
 //
-bool HiQRobot::print(){
+std::string HiQRobot::report(){
   if(!placed){
-    return true;
+    return std::string("");
   }
 
-  std::cout << "<" << this->position[0] << ", " << this->position[1] << ">,";
-  // todo
+  std::string posStr =  "<" + std::to_string(position[0]) + ", " + std::to_string(position[1]) + ">,";
+  std::string orStr;
   switch(orientation){
   case NORTH:
-    std::cout << " NORTH" << std::endl;
+    orStr.assign(" NORTH");
     break;
 
   case SOUTH:
-    std::cout << " SOUTH" << std::endl;
+    orStr.assign(" SOUTH");
     break;
 
   case WEST:
-    std::cout << " WEST" << std::endl;
+    orStr.assign(" WEST");
     break;
 
   case EAST:
-    std::cout << " EAST" << std::endl;
+    orStr.assign(" EAST");
     break;
   }
 
-  return false;
+  return posStr.append(orStr);
 }
 
 // Get placed status

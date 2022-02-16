@@ -1,0 +1,3 @@
+MOVE
+MOVEQ
+MOVE Q

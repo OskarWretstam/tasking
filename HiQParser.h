@@ -2,45 +2,49 @@
 #define HIQPARSER_H
 
 #include <fstream>
-#include "HiQRobot.h"
 #include <string>
 #include <map>
+
+#include "HiQRobot.h"
 
 class HiQParser{
 
 public:
 
-  // Public typedefinitions
-  enum Cmd_Type_e {INVALID, PLACE, MOVE, LEFT, RIGHT, REPORT};
+  // Public type definitions
+  enum cmdType_e {INVALID, PLACE, MOVE, LEFT, RIGHT, REPORT};
+
+  typedef struct{
+    bool valid = false;
+    cmdType_e cmd;
+    std::array<int, 2> coordinate;
+    HiQRobot::Orientation_e orientation;
+  } cmdStruct_t;
 
   // Public function declarations
   bool open(std::string filename);
   bool close();
-  bool Next_cmd();
-  Cmd_Type_e Get_cmd();
-  std::pair<int,int> Get_Coord();
-  HiQRobot::Orientation_e Get_Orientation();
+  bool nextCmd();
+  cmdStruct_t getCmd();
 
 private:
 
   // Private variables
-  Cmd_Type_e cmd = INVALID;
-  std::pair<int,int> coordinate = {-1, -1};
-  HiQRobot::Orientation_e orientation = HiQRobot::INVALID;
-  std::ifstream input_file;
+  cmdStruct_t cmdStruct;
+  std::ifstream inputFile;
 
   // Map valid commands
-  const std::map<std::string, Cmd_Type_e> cmd_map = {{"PLACE", PLACE},
-						     {"MOVE", MOVE},
-						     {"LEFT", LEFT},
-						     {"RIGHT", RIGHT},
-						     {"REPORT", REPORT}};
+  const std::map<std::string, cmdType_e> cmdMap = {{"PLACE", PLACE},
+						    {"MOVE", MOVE},
+						    {"LEFT", LEFT},
+						    {"RIGHT", RIGHT},
+						    {"REPORT", REPORT}};
 
   // Map valid orientations
-  const std::map<std::string, HiQRobot::Orientation_e> orientation_map = {{"NORTH", HiQRobot::NORTH},
-									  {"SOUTH", HiQRobot::SOUTH},
-									  {"EAST", HiQRobot::EAST},
-									  {"WEST", HiQRobot::WEST}};
+  const std::map<std::string, HiQRobot::Orientation_e> orientationMap = {{"NORTH", HiQRobot::NORTH},
+									 {"SOUTH", HiQRobot::SOUTH},
+									 {"EAST", HiQRobot::EAST},
+									 {"WEST", HiQRobot::WEST}};
 
 };
 

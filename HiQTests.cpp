@@ -124,8 +124,8 @@ void testRobotNotPlaced(){
 
   // Test
   assert(r.move());
-  assert(r.print());
   assert(r.rotate(HiQRobot::LEFT));
+  assert(r.report().compare("") == 0);
 }
 
 // Test that we can parse a place command
@@ -135,43 +135,113 @@ void testParsePlace(){
   std::string filename("./test_files/place.txt");
   HiQParser p = HiQParser();
   assert(!p.open(filename));
+  HiQParser::cmdStruct_t cmdStruct;
 
+  // Test valid placements
+
+  // PLACE 0,0,SOUTH
+  assert(!p.nextCmd());
+  cmdStruct = p.getCmd();
+  assert(cmdStruct.cmd == HiQParser::PLACE);
+  assert(cmdStruct.coordinate[0] == 0);
+  assert(cmdStruct.coordinate[1] == 0);
+  assert(cmdStruct.orientation == HiQRobot::SOUTH);
+
+  // PLACE 3,0,NORTH
+  assert(!p.nextCmd());
+  cmdStruct = p.getCmd();
+  assert(cmdStruct.cmd == HiQParser::PLACE);
+  assert(cmdStruct.coordinate[0] == 3);
+  assert(cmdStruct.coordinate[1] == 0);
+  assert(cmdStruct.orientation == HiQRobot::NORTH);
+
+  // PLACE 0,3,WEST
+  assert(!p.nextCmd());
+  cmdStruct = p.getCmd();
+  assert(cmdStruct.cmd == HiQParser::PLACE);
+  assert(cmdStruct.coordinate[0] == 0);
+  assert(cmdStruct.coordinate[1] == 3);
+  assert(cmdStruct.orientation == HiQRobot::WEST);
+
+  // PLACE 3,3,EAST
+  assert(!p.nextCmd());
+  cmdStruct = p.getCmd();
+  assert(cmdStruct.cmd == HiQParser::PLACE);
+  assert(cmdStruct.coordinate[0] == 3);
+  assert(cmdStruct.coordinate[1] == 3);
+  assert(cmdStruct.orientation == HiQRobot::EAST);
+
+  // PLACE 1b,13,WEST
+  assert(!p.nextCmd());
+  cmdStruct = p.getCmd();
+  assert(cmdStruct.cmd == HiQParser::PLACE);
+  assert(cmdStruct.coordinate[0] == 1);
+  assert(cmdStruct.coordinate[1] == 13);
+  assert(cmdStruct.orientation == HiQRobot::WEST);
+
+  // Test some invalid placements
+
+  // PLACE
+  assert(p.nextCmd());
+  // PLACE a1,b,SOUTH
+  assert(p.nextCmd());
+  // PLACE 0,0,QWE
+  assert(p.nextCmd());
+  // PLACE 3,
+  assert(p.nextCmd());
+
+  // Free resource
+  p.close();
 }
 
-// Test that we cannot parse a place command without the full set of parameters
+// Test that we can parse a command without parameters
 //
-void testParsePlaceWOParams(){
+void testParseParameterless(std::string testFile, HiQParser::cmdType_e result){
+  // Setup
+  std::string filename(testFile);
+  HiQParser p = HiQParser();
+  assert(!p.open(filename));
+  HiQParser::cmdStruct_t cmdStruct;
 
-}
+  // Valid move command
 
-// Test that we can parse a move command
-//
-void testParseMove(){
+  // COMMAND
+  assert(!p.nextCmd());
+  cmdStruct = p.getCmd();
+  assert(cmdStruct.cmd == result);
 
-}
+  // Invalid
 
-// Test that we can parse a left command
-//
-void testParseLeft(){
+  // COMMANDQ
+  assert(p.nextCmd());
 
-}
+  // COMMAND Q - command takes no parameters
+  assert(p.nextCmd());
 
-// Test that we can parse a right command
-//
-void testParseRight(){
-
-}
-
-// Test that we can parse a report command
-//
-void testParseReport(){
-
+  // Free resource
+  p.close();
 }
 
 // Test that we wont accept invalid input
 //
 void testParseInvalid(){
+  // Setup
+  std::string filename("./test_files/invalid.txt");
+  HiQParser p = HiQParser();
+  assert(!p.open(filename));
 
+  // File just contains some jibberish to test
+  // for crashes, verify that all the lines just
+  // return invalid cmd
+  assert(p.nextCmd());
+  assert(p.nextCmd());
+  assert(p.nextCmd());
+  assert(p.nextCmd());
+  assert(p.nextCmd());
+  assert(p.nextCmd());
+
+  // Free resource
+  p.close();
 }
 
 // Public function
@@ -184,9 +254,8 @@ void runTests(){
 
   // Test parser
   testParsePlace();
-  testParseMove();
-  testParseLeft();
-  testParseRight();
-  testParseReport();
-  testParseInvalid();
+  testParseParameterless("./test_files/move.txt", HiQParser::MOVE);
+  testParseParameterless("./test_files/left.txt", HiQParser::LEFT);
+  testParseParameterless("./test_files/right.txt", HiQParser::RIGHT);
+  testParseParameterless("./test_files/report.txt", HiQParser::REPORT);
 }
